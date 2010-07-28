@@ -1,0 +1,7 @@
+[user me]
+email    = <email>
+password = <password>
+
+[blog <name of blog>]
+url  = <url>
+user = me
