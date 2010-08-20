@@ -151,7 +151,7 @@ class Blog(object):
 
 		if not errmsg:
 			return
-		raise Error.from_html(html2text(str(errmsg)))
+		raise Error(html2text(str(errmsg)))
 
 if __name__ == '__main__':
 	parser = OptionParser('Usage: %prog [-c <config_file>] <blog1> [<blog2> [...]]\n'
