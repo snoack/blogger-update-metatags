@@ -57,7 +57,7 @@ class Session(object):
 		self.close()
 
 	def close(self):
-		self.browser.open('http://www.blogger.com/logout.g')
+		self.browser.open('https://www.google.com/accounts/Logout')
 		self.browser.close()
 
 class Variable(object):
