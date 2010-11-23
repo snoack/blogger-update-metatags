@@ -67,7 +67,7 @@ if 'py2exe' in sys.argv:
 			print >>file, 'gtk-theme-name = "MS-Windows"'
 			file.close()
 
-	kwargs = dict(windows=['blogger-update-metatags-py2exe.py'],
+	kwargs = dict(windows=[{'script': 'blogger-update-metatags-py2exe.py', 'dest_base': 'blogger-update-metatags'}],
 	              zipfile=None,
 	              options={'py2exe': dict(includes=['cairo', 'gio', 'pango', 'pangocairo', 'atk'],
 	                                      excludes=['pkgutil', 'pkg_resources'],
