@@ -97,7 +97,7 @@ class Blog(object):
 				continue
 
 			desc = re.split(r'(?:\r\n?|(?<!\r)\n){2}', node2text(entry['summary']))[0]	# Only the first paragraph.
-			tags = [c['term'] for c in entry['category']]
+			tags = [c['term'] for c in entry.get('category', [])]
 
 			self.pages.append((url, desc, tags))
 			all_tags.extend(tags)
