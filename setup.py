@@ -25,7 +25,7 @@ if 'py2exe' in sys.argv:
 
 					log.info('adding %s to %s' % (infile, outfile))
 
-					varname = re.sub(r'[^A-zA-z0-9]', '_', filename).upper()
+					varname = re.sub(r'[^A-Za-z0-9]', '_', filename).upper()
 					content = open(infile, 'rb').read().decode('raw_unicode_escape').encode('ascii', 'backslashreplace')
 
 					file.write("%s = '''%s'''\n" % (varname, content))
