@@ -70,6 +70,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <signal name="changed" handler="on_change"/>
+                            <signal name="focus_out_event" handler="on_entry_url_focus_out"/>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>

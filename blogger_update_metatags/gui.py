@@ -91,6 +91,14 @@ class Gui(object):
 	def on_change(self, entry):
 		self._set_button_ok_sensitive()
 
+	def on_entry_url_focus_out(self, entry, event):
+		url = self.entry_url.get_text().strip()
+
+		if url and '://' not in url:
+			url = 'http://' + url
+
+		self.entry_url.set_text(url)
+
 	def on_file_set(self, chooser):
 		self._set_button_ok_sensitive()
 
