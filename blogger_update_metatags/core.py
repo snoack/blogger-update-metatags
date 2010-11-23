@@ -78,7 +78,7 @@ class Blog(object):
 		self.url = url
 
 		# Download the summarized feed for the blog.
-		resp = self.session.browser.open(url + '/feeds/posts/summary/?alt=json')
+		resp = self.session.browser.open(urlparse.urljoin(url, 'feeds/posts/summary/?alt=json'))
 		feed = simplejson.loads(resp.get_data())['feed']
 
 		# Get the blog id.
