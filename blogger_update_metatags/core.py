@@ -15,6 +15,8 @@ DEFAULT_CONFIG_FILE = os.path.expanduser(os.path.join('~', '.config', 'blogger-u
 BEGIN_COMMENT = '<!-- BEGIN OF AUTO-GENERATED META TAGS -->'
 END_COMMENT   = '<!-- END OF AUTO-GENERATED META TAGS -->'
 
+MAX_RESULTS = 100
+
 
 def html2text(text):
 	output = []
@@ -75,32 +77,36 @@ class Variable(object):
 class Blog(object):
 	def __init__(self, session, url):
 		self.session = session
-		self.url = url
+		self.url     = url
+		self.pages   = []
 
-		# Download the summarized feed for the blog.
-		resp = self.session.browser.open(urlparse.urljoin(url, 'feeds/posts/summary/?alt=json'))
-		feed = simplejson.loads(resp.get_data())['feed']
+		all_tags = []
+
+		for i in itertools.count():
+			# Fetch the summarized feed for up to MAX_RESULTS blog posts.
+			resp = self.session.browser.open(urlparse.urljoin(url, 'feeds/posts/summary/?alt=json&max-results=%d&start-index=%d' % (MAX_RESULTS, MAX_RESULTS * i + 1)))
+			feed = simplejson.loads(resp.get_data())['feed']
+
+			# Collect the description and tags for the fetched posts.
+			for entry in feed['entry']:
+				for link in entry['link']:
+					if link['rel'] == 'alternate':
+						url = link['href']
+						break
+				else:
+					continue
+
+				desc = re.split(r'(?:\r\n?|(?<!\r)\n){2}', node2text(entry['summary']))[0]	# Only the first paragraph.
+				tags = [c['term'] for c in entry.get('category', [])]
+
+				self.pages.append((url, desc, tags))
+				all_tags.extend(tags)
+
+			if len(feed['entry']) < MAX_RESULTS:
+				break
 
 		# Get the blog id.
 		self.id = node2text(feed['id']).split(':')[-1].split('-')[-1]
-
-		# Collect the description and tags for all posts.
-		self.pages = []
-		all_tags   = []
-
-		for entry in feed['entry']:
-			for link in entry['link']:
-				if link['rel'] == 'alternate':
-					url = link['href']
-					break
-			else:
-				continue
-
-			desc = re.split(r'(?:\r\n?|(?<!\r)\n){2}', node2text(entry['summary']))[0]	# Only the first paragraph.
-			tags = [c['term'] for c in entry.get('category', [])]
-
-			self.pages.append((url, desc, tags))
-			all_tags.extend(tags)
 
 		# Get the description and tags for the homepage. The most
 		# popular/relevant tags are used for the homepage.
