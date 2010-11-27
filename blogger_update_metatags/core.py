@@ -91,7 +91,6 @@ class Blog(object):
 			for entry in feed['entry']:
 				for link in entry['link']:
 					if link['rel'] == 'alternate':
-						url = link['href']
 						break
 				else:
 					continue
@@ -99,7 +98,7 @@ class Blog(object):
 				desc = re.split(r'(?:\r\n?|(?<!\r)\n){2}', node2text(entry['summary']))[0]	# Only the first paragraph.
 				tags = [c['term'] for c in entry.get('category', [])]
 
-				self.pages.append((url, desc, tags))
+				self.pages.append((link['href'], desc, tags))
 				all_tags.extend(tags)
 
 			if len(feed['entry']) < MAX_RESULTS:
