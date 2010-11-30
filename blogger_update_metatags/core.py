@@ -126,8 +126,12 @@ class Blog(object):
 		# Build the template code for generating the meta tags.
 		output = []
 		for url, description, tags in self.pages:
+			if not description and not tags:
+				continue
+
 			if getattr(url, 'needs_quotes', True):
 				url = '"%s"' % url
+
 			output.append("<b:if cond='data:blog.url == %s'>" % url)
 			if description:
 				output.append('  <meta name="description" content="%s"/>' % escape(description))
