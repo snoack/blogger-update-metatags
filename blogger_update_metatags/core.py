@@ -30,6 +30,9 @@ def node2text(node):
 		return text
 	return unicode(BeautifulSoup(html2text(text), convertEntities=BeautifulSoup.ALL_ENTITIES))
 
+def escape(s):
+	return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
+
 class Error(Exception):
 	pass
 
@@ -127,9 +130,9 @@ class Blog(object):
 				url = '"%s"' % url
 			output.append("<b:if cond='data:blog.url == %s'>" % url)
 			if description:
-				output.append('  <meta name="description" content="%s"/>' % description.replace('"', '&quot;'))
+				output.append('  <meta name="description" content="%s"/>' % escape(description))
 			if tags:
-				output.append('  <meta name="keywords" content="%s"/>' % ', '.join(tags).replace('"', '&quot;'))
+				output.append('  <meta name="keywords" content="%s"/>' % escape(', '.join(tags)))
 			output.append('</b:if>')
 
 		# Update the meta tags in the template.
