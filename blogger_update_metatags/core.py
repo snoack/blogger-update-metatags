@@ -100,7 +100,7 @@ class Blog(object):
 				else:
 					continue
 
-				desc = re.split(r'(?:\r\n?|(?<!\r)\n){2}', node2text(entry['summary']))[0]	# Only the first paragraph.
+				desc = re.split(r'(?:\r\n?|(?<!\r)\n){2}', node2text(entry['summary']))[0].strip()	# Only the first paragraph.
 				tags = [c['term'] for c in entry.get('category', [])]
 
 				self.pages.append((link['href'], desc, tags))
