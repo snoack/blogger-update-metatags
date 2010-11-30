@@ -28,7 +28,7 @@ def node2text(node):
 	text = node['$t']
 	if node.get('type') != 'html':
 		return text
-	return str(BeautifulSoup(html2text(text), convertEntities=BeautifulSoup.ALL_ENTITIES))
+	return unicode(BeautifulSoup(html2text(text), convertEntities=BeautifulSoup.ALL_ENTITIES))
 
 class Error(Exception):
 	pass
@@ -39,9 +39,10 @@ class Session(object):
 
 		# Login at the Blogger startpage.
 		self.browser.open('https://www.google.com/accounts/ServiceLoginAuth')
+		encoding = self.browser.encoding()
 		self.browser.select_form(nr=0)
-		self.browser['Email'] = email
-		self.browser['Passwd'] = password
+		self.browser['Email']  = isinstance(email,    unicode) and email.encode(encoding)    or email
+		self.browser['Passwd'] = isinstance(password, unicode) and password.encode(encoding) or password
 		resp = self.browser.submit()
 
 		# Check whether we were redirected to the dashboard.
@@ -49,8 +50,9 @@ class Session(object):
 			return
 
 		# Find the error message.
-		soup = BeautifulSoup(resp.get_data(), convertEntities=BeautifulSoup.ALL_ENTITIES)
-		raise Error(html2text(str(soup.find(attrs={'class': 'errormsg'}))))
+		data = resp.get_data().decode(self.browser.encoding())
+		soup = BeautifulSoup(data, convertEntities=BeautifulSoup.ALL_ENTITIES)
+		raise Error(html2text(unicode(soup.find(attrs={'class': 'errormsg'}))))
 	
 	def __enter__(self):
 		return self
@@ -85,7 +87,7 @@ class Blog(object):
 		for i in itertools.count():
 			# Fetch the summarized feed for up to MAX_RESULTS blog posts.
 			resp = self.session.browser.open(urlparse.urljoin(url, 'feeds/posts/summary/?alt=json&max-results=%d&start-index=%d' % (MAX_RESULTS, MAX_RESULTS * i + 1)))
-			feed = simplejson.loads(resp.get_data())['feed']
+			feed = simplejson.loads(resp.get_data().decode(self.session.browser.encoding()))['feed']
 
 			# Collect the description and tags for the fetched posts.
 			for entry in feed['entry']:
@@ -132,7 +134,9 @@ class Blog(object):
 
 		# Update the meta tags in the template.
 		resp = self.session.browser.open('http://www.blogger.com/html?blogID=' + self.id)
-		soup = BeautifulSoup(resp.get_data(), convertEntities=BeautifulSoup.ALL_ENTITIES)
+		encoding = self.session.browser.encoding()
+		data = resp.get_data().decode(encoding)
+		soup = BeautifulSoup(data, convertEntities=BeautifulSoup.ALL_ENTITIES)
 
 		regex = re.compile(r'(?<=%s).*(?=%s)' % (BEGIN_COMMENT, END_COMMENT), re.S)
 		templ = soup.find(id='templateText').string
@@ -144,13 +148,14 @@ class Blog(object):
 			templ = regex.sub('\n\n%s\n%s\n%s' % (BEGIN_COMMENT, '\n'.join(output), END_COMMENT), templ, 1)
 
 		self.session.browser.select_form('templateEdit')
-		self.session.browser['templateText'] = templ
+		self.session.browser['templateText'] = templ.encode(encoding)
 		resp = self.session.browser.submit()
 
 		# Look for a possible error message.
-		soup = BeautifulSoup(resp.get_data(), convertEntities=BeautifulSoup.ALL_ENTITIES)
+		data = resp.get_data().decode(self.session.browser.encoding())
+		soup = BeautifulSoup(data, convertEntities=BeautifulSoup.ALL_ENTITIES)
 		errmsg = soup.find(id='error-message')
 
 		if not errmsg:
 			return
-		raise Error(html2text(str(errmsg)))
+		raise Error(html2text(unicode(errmsg)))

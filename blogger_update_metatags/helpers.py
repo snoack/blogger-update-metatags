@@ -21,7 +21,7 @@ def process_blog(url, email, password):
 
 			blog.update_meta_tags()
 	except Error, e:
-		logger.error(str(e))
+		logger.error(unicode(e))
 		return 1
 	except IOError:
 		logger.error('Failed to connect. Possibly you are offline.')
