@@ -142,11 +142,10 @@ class Blog(object):
 		# Update the meta tags in the template.
 		resp = self.session.browser.open('http://www.blogger.com/html?blogID=' + self.id)
 		encoding = self.session.browser.encoding()
-		data = resp.get_data().decode(encoding)
-		soup = BeautifulSoup(data, convertEntities=BeautifulSoup.ALL_ENTITIES)
+		soup = BeautifulSoup(resp.get_data().decode(encoding))
 
 		regex = re.compile(r'(?<=%s).*(?=%s)' % (BEGIN_COMMENT, END_COMMENT), re.S)
-		templ = soup.find(id='templateText').string
+		templ = unicode(BeautifulSoup(soup.find(id='templateText').string, convertEntities=BeautifulSoup.ALL_ENTITIES))
 
 		if regex.search(templ):
 			templ = regex.sub('\n%s\n' % '\n'.join(output), templ)
